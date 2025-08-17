@@ -13,6 +13,8 @@ const char* serverStatus = "http://192.168.0.109:8000/led_control/";
 
 const String device_id = "esp32_0";
 
+int delay_time = 0;
+
 
 void setup() {
   Serial.begin(115200);
@@ -37,8 +39,8 @@ void loop() {
     Serial.println("Reconnecting WiFi...");
     WiFi.reconnect();
   }
-
-  if (millis() - lastRunTime > = 30000) {
+  delay_time *= 1000;
+  if (millis() - lastRunTime >= delay_time) {
     sendRunStatus();
     lastRunTime = millis();
   }
@@ -66,6 +68,13 @@ void sendRunStatus() {
   String payload = "{\"device_id\":\"" + device_id + "\"}";
   
   int httpCode = http.POST(payload);
+
+  String response = http.getString();
+  StaticJsonDocument<200> responseDoc;
+  DeserializationError error = deserializeJson(responseDoc, response);
+  const char*  char_delay_time = responseDoc["delay"];
+  String string_delay_time = String(char_delay_time);
+  delay_time = string_delay_time.toInt();
   
   if (httpCode > 0) {
     Serial.printf("Registration response: %d\n", httpCode);
@@ -95,22 +104,23 @@ void sendGetStatus() {
       DeserializationError error = deserializeJson(doc, response);
 
 
-      const char*  status = doc["status"];
-
-      Serial.printf("Status: %s", status);
+    if (!error) {
+      const char* status = doc["status"];
+      Serial.print("LED status: ");
+      Serial.println(status);
       
-      if (strcmp(status, "on") == 0){
-        digitalWrite(LED_PIN, HIGH);
-        Serial.println("on");
+      if (strcmp(status, "on") == 0) {
+         digitalWrite(LED_PIN, HIGH); 
+      } 
+      else if (strcmp(status, "off") == 0) {
+        digitalWrite(LED_PIN, LOW);  
       }
-      else if(strcmp(status, "off") == 0){
-        digitalWrite(LED_PIN, LOW);
-        Serial.println("off");
-      }
-      else{
+      else {
         blinkLED();
       }
-      
+    }
+    else {
+      blinkLED();
     }
   } else {
     Serial.printf("[GET] Failed: %s\n", http.errorToString(httpCode).c_str());
@@ -118,6 +128,7 @@ void sendGetStatus() {
   }
   
   http.end();
+  }
 }
 
 void sendREG() {
@@ -137,9 +148,16 @@ void sendREG() {
   doc["mac"] = WiFi.macAddress();
   doc["ipAddress"] = WiFi.localIP().toString();
   
-  String payload;
+  String payload; 
   serializeJson(doc, payload);
   int httpCode = http.POST(payload);
+
+  String response = http.getString();
+  StaticJsonDocument<200> responseDoc;
+  DeserializationError error = deserializeJson(responseDoc, response);
+  const char*  char_delay_time = responseDoc["delay"];
+  String string_delay_time = String(char_delay_time);
+  delay_time = string_delay_time.toInt();
   
   if (httpCode > 0) {
     Serial.printf("Response: %d\n", httpCode);
