@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 from pydantic import BaseModel
@@ -26,11 +26,12 @@ class RegNewDev(BaseModel):
 
 
 '''
-    Сделать так что если устроство не зарегестированно,
+    Сделать так что если устройство не зарегистрировано,
     то оно не будет принимать и получать запросы.
-
-    Проверить задержки и сделать так что бы они были настраиваемыми через /reg.
-    Обратная отправка команды которая будет настраивать время запросов.
+    
+    Внести в REG ответ зарегистрировано или нет.
+    А на ESP32 проверят True or False. 
+    Если False то не отправлять показания и включить переподключение.
 '''
 
 '''
@@ -45,12 +46,12 @@ async def handle_button(status: RegNewDev):
     print(f"  MAC: {status.mac}")
     print(f"  IP: {status.ipAddress}")
     add_item(status.device_id, status.mac, status.ipAddress)
-    return {"status": "success", "state": "ok"}
+    return {"delay": "10"}
 
 @app.post("/run_status")
 async def status_esp(status: RunStatus):
     update_time(status.device_id, datetime.now())
-    return {"run_status": "run"}
+    return {"delay": "10"}
 
 
 

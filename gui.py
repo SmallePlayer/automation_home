@@ -12,7 +12,7 @@ def get_all_device():
     return response.json()
 
 
-stats = get_all_device()
+
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -45,49 +45,55 @@ def toggle_device(device_id, button):
     update_status(device_id, new_status)
 
 
-# Создаем элементы интерфейса для каждого устройства
-for device in stats:
-    # Фрейм для отдельного устройства
-    device_frame = ctk.CTkFrame(main_frame)
-    device_frame.pack(fill="x", pady=10, padx=5)
+flag = False
+while True:
 
-    # Метка с именем устройства
-    label = ctk.CTkLabel(
-        device_frame,
-        text=device['device_id'],
-        font=("Arial", 14, "bold"),
-        width=120,
-        anchor="w"
-    )
-    label.pack(side="left", padx=(10, 20), pady=10)
 
-    # Определяем начальное состояние кнопки
-    initial_status = device['status']
-    if initial_status == "on":
-        btn_text = "ON"
-        btn_fg_color = "#2E8B57"
-        btn_hover_color = "#3CB371"
-    else:
-        btn_text = "OFF"
-        btn_fg_color = "#FF6347"
-        btn_hover_color = "#FF4500"
+    stats = get_all_device()
+    # Создаем элементы интерфейса для каждого устройства
+    for device in stats:
+        # Фрейм для отдельного устройства
+        device_frame = ctk.CTkFrame(main_frame)
+        device_frame.pack(fill="x", pady=10, padx=5)
 
-    # Кнопка переключения состояния
-    button = ctk.CTkButton(
-        device_frame,
-        text=btn_text,
-        width=100,
-        height=40,
-        font=("Arial", 12, "bold"),
-        fg_color=btn_fg_color,
-        hover_color=btn_hover_color,
-        corner_radius=8
-    )
-    # Привязываем команду с конкретным device_id
-    button.configure(
-        command=lambda dev_id=device['device_id'], btn=button: toggle_device(dev_id, btn)
-    )
-    button.pack(side="right", padx=10, pady=10)
+        # Метка с именем устройства
+        label = ctk.CTkLabel(
+            device_frame,
+            text=device['device_id'],
+            font=("Arial", 14, "bold"),
+            width=120,
+            anchor="w"
+        )
+        label.pack(side="left", padx=(10, 20), pady=10)
 
-# Запускаем главный цикл
-window.mainloop()
+        # Определяем начальное состояние кнопки
+        initial_status = device['status']
+        if initial_status == "on":
+            btn_text = "ON"
+            btn_fg_color = "#2E8B57"
+            btn_hover_color = "#3CB371"
+        else:
+            btn_text = "OFF"
+            btn_fg_color = "#FF6347"
+            btn_hover_color = "#FF4500"
+
+        # Кнопка переключения состояния
+        button = ctk.CTkButton(
+            device_frame,
+            text=btn_text,
+            width=100,
+            height=40,
+            font=("Arial", 12, "bold"),
+            fg_color=btn_fg_color,
+            hover_color=btn_hover_color,
+            corner_radius=8
+        )
+        # Привязываем команду с конкретным device_id
+        button.configure(
+            command=lambda dev_id=device['device_id'], btn=button: toggle_device(dev_id, btn)
+        )
+        button.pack(side="right", padx=10, pady=10)
+
+        if flag == False:
+            flag = True
+            window.mainloop()
