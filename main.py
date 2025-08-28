@@ -68,6 +68,12 @@ async def get_status(device_id: str):
 def get_all_device_statuses_endpoint():
     return get_all_device_statuses()
 
+@app.post("/temp")
+def get_temp_device(temp: int):
+    print(temp)
+    return {"state": "ok"}
+
+
 
 
 
