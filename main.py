@@ -24,7 +24,6 @@ class RegNewDev(BaseModel):
     mac: str
     ipAddress: str
 
-
 '''
     Сделать так что если устройство не зарегистрировано,
     то оно не будет принимать и получать запросы.
@@ -46,14 +45,12 @@ async def handle_button(status: RegNewDev):
     print(f"  MAC: {status.mac}")
     print(f"  IP: {status.ipAddress}")
     add_item(status.device_id, status.mac, status.ipAddress)
-    return {"delay": "10"}
+    return {"delay": "10", "status": "success"}
 
 @app.post("/run_status")
 async def status_esp(status: RunStatus):
     update_time(status.device_id, datetime.now())
     return {"delay": "10"}
-
-
 
 '''
     Сделать эту функция как индикатор подключения к серверу
